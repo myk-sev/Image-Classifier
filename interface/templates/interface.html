@@ -1,0 +1,141 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classification Interface</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+<div class="dashboard-shell">
+
+    <section class="hero-card">
+        <div class="hero-content">
+            <h1>Image Classification Interface</h1>
+            <p>
+                Drop in a model, upload satellite image tiles, and keep classifying without reselecting
+                the model between image uploads.
+            </p>
+        </div>
+
+        <div class="hero-icon">+</div>
+    </section>
+        <section class="workspace-card">
+
+            <div class="workspace-header">
+                <h2>Image Upload and Classification</h2>
+                <p>Drag a model and an image into the upload areas or select them manually.</p>
+            </div>
+
+            <div class="workspace-grid">
+
+                <div class="upload-panel">
+                    <h3>Upload Inputs</h3>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <label class="drop-zone" for="model-input" data-drop-zone>
+                            <span class="drop-zone-title">Drop model file here</span>
+                            <span class="drop-zone-subtitle">or click to select a .pth file</span>
+                            <span class="drop-zone-file" data-file-name>
+                                {% if model_name %}Current model: {{ model_name }}{% else %}No model selected; default model will be used.{% endif %}
+                            </span>
+
+                            <input
+                                id="model-input"
+                                type="file"
+                                name="model"
+                                accept=".pth"
+                            >
+                        </label>
+
+                        <label class="drop-zone" for="image-input" data-drop-zone>
+                            <span class="drop-zone-title">Drop image file here</span>
+                            <span class="drop-zone-subtitle">or click to select a JPG file</span>
+                            <span class="drop-zone-file" data-file-name>No image selected</span>
+
+                            <input
+                                id="image-input"
+                                type="file"
+                                name="image"
+                                accept=".jpg,.jpeg"
+                                required
+                            >
+                        </label>
+
+                        <button type="submit">Classify Image</button>
+                    </form>
+                </div>
+
+                <div class="result-panel">
+                    {% if image_url %}
+                        <h3>{{ image_name }}</h3>
+
+                        <div class="image-frame">
+                            <img src="{{ image_url }}" alt="Uploaded image" class="preview-image">
+                        </div>
+
+                        <div class="outcome-box">
+                            <h4>Classification Result</h4>
+                            <p>{{ outcome|default:"Outcome has not been generated yet." }}</p>
+                        </div>
+                    {% else %}
+                        <h3>No image uploaded</h3>
+
+                        <div class="placeholder-box">
+                            <p>The uploaded image preview will appear here.</p>
+                        </div>
+
+                        <div class="outcome-box">
+                            <h4>Classification Result</h4>
+                            <p>Outcome has not been generated yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </section>
+
+</div>
+
+<script>
+    document.querySelectorAll("[data-drop-zone]").forEach((dropZone) => {
+        const input = dropZone.querySelector("input[type='file']");
+        const fileName = dropZone.querySelector("[data-file-name]");
+
+        const updateFileName = () => {
+            if (input.files.length > 0) {
+                fileName.textContent = input.files[0].name;
+            }
+        };
+
+        input.addEventListener("change", updateFileName);
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.add("drop-zone-active");
+            });
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.remove("drop-zone-active");
+            });
+        });
+
+        dropZone.addEventListener("drop", (event) => {
+            if (event.dataTransfer.files.length > 0) {
+                input.files = event.dataTransfer.files;
+                updateFileName();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
