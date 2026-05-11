@@ -44,9 +44,6 @@ if not DEBUG: # Productions settings for cookies and redirects
     REFERRER_POLICY = "same-origin"
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-ALLOWED_HOSTS = []
-
-
 # Application definition
 
 INSTALLED_APPS = [
