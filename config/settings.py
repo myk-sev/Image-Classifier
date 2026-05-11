@@ -10,18 +10,25 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+
 PRODUCTION = True
 DEBUG = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("Set the SECRET_KEY environment variable.")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-ALLOWED_HOSTS = ["https://image-classifier-3l0o.onrender.com"]
+ALLOWED_HOSTS = ["classify-image-fv3d.onrender.com"]
 # if PRODUCTION:
 #     ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS")]
 #     CSRF_TRUSTED_ORIGINS  = [os.getenv("CSRF_TRUSTED_ORIGINS")]
@@ -133,11 +140,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
-STATIC_URL = "static/"          # URL prefix used in templates/browser
+STATIC_URL = "/static/"          # URL prefix used in templates/browser
 STATIC_ROOT = BASE_DIR / "staticfiles"  # folder collectstatic copies files into
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
 
 STORAGES = {
     "staticfiles": {
